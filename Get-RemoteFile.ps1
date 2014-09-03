@@ -5,8 +5,10 @@ Param(
     [Parameter(Mandatory=$true,Position=1)]
         [string]$FileName,
     [Parameter(Mandatory=$false,Position=2)]
-        [switch]$Ascii,
+        [string]$LocalPath=$PSScriptRoot,
     [Parameter(Mandatory=$false,Position=3)]
+        [switch]$Ascii,
+    [Parameter(Mandatory=$false,Position=4)]
         [System.Management.Automation.PSCredential]$Creds
 )
 
@@ -51,11 +53,11 @@ if ($PSSession) {
         foreach($ChildJob in $Job.ChildJobs) {
             $Recpt = Receive-Job $ChildJob
 
-            $OutFile = Join-Path $PSScriptRoot $Target
+            $OutFile = Join-Path $LocalPath $Target
             $OutFile = Join-Path $OutFile ($FileName -replace "\\|:", "_")
 
             if( -not (Test-Path $OutFile)) {
-                New-Item $OutFile -ItemType file -Force
+                $supress = New-Item $OutFile -ItemType file -Force
             }
 
             $Recpt | Set-Content -Encoding $Encoding $OutFile
